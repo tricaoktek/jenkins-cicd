@@ -16,27 +16,25 @@ pipeline {
     )
   }
 
-  stages {
-    try {
-      stage('Testing') {
-        steps {
-          telegramSend "[+] Testing..."
-          nodejs(nodeJSInstallationName: 'nodejs') {
-            sh 'npm install --only=dev'
-            sh 'npm test'
-          }
-          telegramSend "[+] Testing Success ${ref}: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})"
+  try {
+    stage('Testing') {
+      steps {
+        telegramSend "[+] Testing..."
+        nodejs(nodeJSInstallationName: 'nodejs') {
+          sh 'npm install --only=dev'
+          sh 'npm test'
         }
+        telegramSend "[+] Testing Success ${ref}: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})"
       }
-    } catch(e) {
-      // mark build as failed
-      currentBuild.result = "FAILURE";
-
-      // send slack notification
-      telegramSend "[x] Something wrong: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL}).\n Error: ${e}"
-
-      // throw the error
-      throw e;
     }
+  } catch(e) {
+    // mark build as failed
+    currentBuild.result = "FAILURE";
+
+    // send slack notification
+    telegramSend "[x] Something wrong: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL}).\n Error: ${e}"
+
+    // throw the error
+    throw e;
   }
 }
