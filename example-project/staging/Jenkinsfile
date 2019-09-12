@@ -1,0 +1,38 @@
+node {
+  agent any
+
+  triggers {
+    GenericTrigger(
+     genericVariables: [
+      [key: 'ref', value: '$.pull_request.base.ref']
+     ],
+     causeString: 'Triggered on $ref',
+     token: 'project-name',
+     printContributedVariables: true,
+     printPostContent: true,
+     silentResponse: false,
+     regexpFilterText: '$ref',
+     regexpFilterExpression: 'staging'
+    )
+  }
+
+  stages {
+    try {
+      stage('Building') {
+        steps {
+          telegramSend "[+] Building..."
+          telegramSend "[+] Building Success ${ref}: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})"
+        }
+      }
+    } catch(e) {
+      // mark build as failed
+      currentBuild.result = "FAILURE";
+
+      // send slack notification
+      telegramSend "[x] Something wrong: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL}).\n Error: ${e}"
+
+      // throw the error
+      throw e;
+    }
+  }
+}
