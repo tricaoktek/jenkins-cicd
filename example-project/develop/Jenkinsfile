@@ -34,7 +34,7 @@ pipeline {
               sh 'npm install --only=dev'
               sh 'npm test'
             }
-            telegramSend "[+] Testing Success ${ref}: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})"
+            telegramSend "[+] 👍Testing Success ${ref}: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})"
           } catch(e) {
             // mark build as failed
             currentBuild.result = "FAILURE";
