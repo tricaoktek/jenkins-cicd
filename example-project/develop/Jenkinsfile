@@ -16,7 +16,7 @@ pipeline {
     )
   }
 
-  scripts {
+  script {
     try {
       stage('Testing') {
         steps {
