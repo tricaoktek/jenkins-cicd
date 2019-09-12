@@ -19,7 +19,7 @@ pipeline {
   stages {
     stage('Preparing source') {
       steps {
-        git branch: 'develop',
+        git branch: 'master',
             credentialsId: 'tricao',
             url: 'git@github.com:tricaoktek/docker-demo.git'
 
