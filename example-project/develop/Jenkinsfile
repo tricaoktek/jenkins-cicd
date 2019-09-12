@@ -5,6 +5,7 @@ pipeline {
     GenericTrigger(
      genericVariables: [
       [key: 'ref', value: '$.pull_request.head.ref']
+      [key: 'repo', value: '$.pull_request.head.ssh_url']
      ],
      causeString: 'Triggered on $ref',
      token: 'project-name',
@@ -21,7 +22,7 @@ pipeline {
       steps {
             git branch: '$ref',
             credentialsId: 'tricao',
-            url: 'git@github.com:tricaoktek/docker-demo.git'
+            url: '$repo'
       }
     }
 
@@ -34,13 +35,13 @@ pipeline {
               sh 'npm install --only=dev'
               sh 'npm test'
             }
-            telegramSend "👍Testing Success ${ref}: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'\n${env.BUILD_URL}"
+            telegramSend "👍Test Success ${ref}: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'\n${env.BUILD_URL}"
           } catch(e) {
             // mark build as failed
             currentBuild.result = "FAILURE";
 
             // send slack notification
-            telegramSend "💩 Something wrong: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'\n${env.BUILD_URL}\nError: ${e}"
+            telegramSend "💩 Test Failed: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'\n${env.BUILD_URL}\nError: ${e}"
 
             // throw the error
             throw e;
