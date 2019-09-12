@@ -15,8 +15,18 @@ pipeline {
      regexpFilterExpression: 'develop'
     )
   }
-  
+
   stages {
+    stage('Preparing source') {
+      steps {
+        git branch: 'develop',
+            credentialsId: 'tricao',
+            url: 'git@github.com:tricaoktek/docker-demo.git'
+
+        sh "ls -lat"
+      }
+    }
+
     stage('Testing') {
       steps {
         script {
@@ -38,7 +48,6 @@ pipeline {
             throw e;
           }
         }
-
       }
     }
   }
