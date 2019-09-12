@@ -18,14 +18,16 @@ pipeline {
 
   script {
     try {
-      stage('Testing') {
-        steps {
-          telegramSend "[+] Testing..."
-          nodejs(nodeJSInstallationName: 'nodejs') {
-            sh 'npm install --only=dev'
-            sh 'npm test'
+      stages {
+        stage('Testing') {
+          steps {
+            telegramSend "[+] Testing..."
+            nodejs(nodeJSInstallationName: 'nodejs') {
+              sh 'npm install --only=dev'
+              sh 'npm test'
+            }
+            telegramSend "[+] Testing Success ${ref}: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})"
           }
-          telegramSend "[+] Testing Success ${ref}: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})"
         }
       }
     } catch(e) {
