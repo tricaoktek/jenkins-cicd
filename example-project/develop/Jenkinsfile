@@ -22,9 +22,24 @@ pipeline {
   stages {
     stage('Preparing source...') {
       steps {
-            git branch: '$ref',
-            credentialsId: 'tricao',
-            url: '$main_repo'
+        script {
+          try {
+            git branch: '$base_ref',
+                credentialsId: 'tricao',
+                url: '$main_repo'
+
+            sh 'git merge $ref'
+          } catch (e) {
+            // mark build as failed
+            currentBuild.result = "FAILURE";
+
+            // send slack notification
+            telegramSend "💩 ${repo_name} - ${base_ref} => Merge ${ref} to ${base_ref} failed: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'\n${env.BUILD_URL}\nError: ${e}"
+
+            // throw the error
+            throw e;
+          }
+        }
       }
     }
 
@@ -32,18 +47,38 @@ pipeline {
       steps {
         script {
           try {
-            telegramSend "😂 Testing..."
+            telegramSend "😂 Testing ${repo_name} - ${base_ref}..."
             nodejs(nodeJSInstallationName: 'nodejs') {
               sh 'npm install --only=dev'
               sh 'npm test'
             }
-            telegramSend "👍 Test Success ${ref}: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'\n${env.BUILD_URL}"
+            telegramSend "👍 Test Success ${repo_name} - ${base_ref}: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'\n${env.BUILD_URL}"
           } catch(e) {
             // mark build as failed
             currentBuild.result = "FAILURE";
 
             // send slack notification
-            telegramSend "💩 Test Failed: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'\n${env.BUILD_URL}\nError: ${e}"
+            telegramSend "💩 Test Failed ${repo_name} - ${base_ref}: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'\n${env.BUILD_URL}\nError: ${e}"
+
+            // throw the error
+            throw e;
+          }
+        }
+      }
+    }
+
+    stage('Building') {
+      steps {
+        script {
+          try {
+            telegramSend "😂 Building ${repo_name} - ${base_ref}..."
+            telegramSend "👍 Build Success ${repo_name} - ${base_ref}: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'\n${env.BUILD_URL}"
+          } catch (e) {
+            // mark build as failed
+            currentBuild.result = "FAILURE";
+
+            // send slack notification
+            telegramSend "💩 Build Failed ${repo_name} - ${base_ref}: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'\n${env.BUILD_URL}\nError: ${e}"
 
             // throw the error
             throw e;
