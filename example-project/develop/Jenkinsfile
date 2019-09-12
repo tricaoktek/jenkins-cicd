@@ -28,7 +28,7 @@ pipeline {
                 credentialsId: 'tricao',
                 url: '$main_repo'
 
-            sh 'git merge $ref'
+            sh 'git merge origin/$ref'
           } catch (e) {
             // mark build as failed
             currentBuild.result = "FAILURE";
