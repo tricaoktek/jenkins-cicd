@@ -67,6 +67,27 @@ pipeline {
       }
     }
 
+    stage('Pushing to origin...') {
+      steps {
+        script {
+          try {
+            sh 'git commit -am "Commit merge ${ref} branch to ${base_ref}'
+            sh "git push origin ${base_ref}"
+            telegramSend "👍 Push Commit Success ${repo_name} - ${base_ref}: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'\n${env.BUILD_URL}"
+          } catch (e) {
+            // mark build as failed
+            currentBuild.result = "FAILURE";
+
+            // send slack notification
+            telegramSend "💩 Push Commit Failed ${repo_name} - ${base_ref}: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'\n${env.BUILD_URL}\nError: ${e}"
+
+            // throw the error
+            throw e;
+          }
+        }
+      }
+    }
+
     stage('Building') {
       steps {
         script {
