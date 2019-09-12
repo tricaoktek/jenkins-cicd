@@ -5,6 +5,7 @@ pipeline {
     GenericTrigger(
      genericVariables: [
       [key: 'ref', value: '$.pull_request.head.ref'],
+      [key: 'base_ref', value: '$.pull_request.base.ref'],
       [key: 'main_repo', value: '$.pull_request.head.repo.ssh_url', expressionType: 'JSONPath'],
       [key: 'repo_name', value: '$.pull_request.head.repo.name', expressionType: 'JSONPath']
      ],
@@ -13,8 +14,8 @@ pipeline {
      printContributedVariables: true,
      printPostContent: true,
      silentResponse: false,
-     regexpFilterText: '$ref',
-     regexpFilterExpression: ''
+     regexpFilterText: '$base_ref',
+     regexpFilterExpression: 'develop'
     )
   }
 

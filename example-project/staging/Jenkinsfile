@@ -1,10 +1,12 @@
-node {
+pipeline {
   agent any
 
   triggers {
     GenericTrigger(
      genericVariables: [
-      [key: 'ref', value: '$.pull_request.base.ref']
+      [key: 'ref', value: '$.pull_request.head.ref'],
+      [key: 'main_repo', value: '$.pull_request.head.repo.ssh_url', expressionType: 'JSONPath'],
+      [key: 'repo_name', value: '$.pull_request.head.repo.name', expressionType: 'JSONPath']
      ],
      causeString: 'Triggered on $ref',
      token: 'project-name',
@@ -12,31 +14,41 @@ node {
      printPostContent: true,
      silentResponse: false,
      regexpFilterText: '$ref',
-     regexpFilterExpression: 'staging'
+     regexpFilterExpression: ''
     )
   }
 
   stages {
-    try {
-      stage('Building') {
-        steps {
-          telegramSend "[+] Building..."
-          nodejs(nodeJSInstallationName: 'nodejs') {
-            sh 'npm install'
-            sh 'npm run build'
+    stage('Preparing source...') {
+      steps {
+            git branch: '$ref',
+            credentialsId: 'tricao',
+            url: '$main_repo'
+      }
+    }
+
+    stage('Testing') {
+      steps {
+        script {
+          try {
+            telegramSend "😂 Testing..."
+            nodejs(nodeJSInstallationName: 'nodejs') {
+              sh 'npm install --only=dev'
+              sh 'npm test'
+            }
+            telegramSend "👍Test Success ${ref}: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'\n${env.BUILD_URL}"
+          } catch(e) {
+            // mark build as failed
+            currentBuild.result = "FAILURE";
+
+            // send slack notification
+            telegramSend "💩 Test Failed: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'\n${env.BUILD_URL}\nError: ${e}"
+
+            // throw the error
+            throw e;
           }
-          telegramSend "[+] Building Success ${ref}: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})"
         }
       }
-    } catch(e) {
-      // mark build as failed
-      currentBuild.result = "FAILURE";
-
-      // send slack notification
-      telegramSend "[x] Something wrong: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL}).\n Error: ${e}"
-
-      // throw the error
-      throw e;
     }
   }
 }
