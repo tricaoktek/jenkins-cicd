@@ -21,6 +21,10 @@ node {
       stage('Building') {
         steps {
           telegramSend "[+] Building..."
+          nodejs(nodeJSInstallationName: 'nodejs') {
+            sh 'npm install'
+            sh 'npm run build'
+          }
           telegramSend "[+] Building Success ${ref}: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})"
         }
       }
