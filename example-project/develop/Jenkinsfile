@@ -29,18 +29,18 @@ pipeline {
       steps {
         script {
           try {
-            telegramSend "[+] Testing..."
+            telegramSend "😂 Testing..."
             nodejs(nodeJSInstallationName: 'nodejs') {
               sh 'npm install --only=dev'
               sh 'npm test'
             }
-            telegramSend "[+] 👍Testing Success ${ref}: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})"
+            telegramSend "👍Testing Success ${ref}: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'\n${env.BUILD_URL}"
           } catch(e) {
             // mark build as failed
             currentBuild.result = "FAILURE";
 
             // send slack notification
-            telegramSend "[x] Something wrong: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL}).\n Error: ${e}"
+            telegramSend "💩 Something wrong: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL}).\nError: ${e}"
 
             // throw the error
             throw e;
