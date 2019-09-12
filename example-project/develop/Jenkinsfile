@@ -40,7 +40,7 @@ pipeline {
             currentBuild.result = "FAILURE";
 
             // send slack notification
-            telegramSend "💩 Something wrong: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL}).\nError: ${e}"
+            telegramSend "💩 Something wrong: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'\n${env.BUILD_URL})\nError: ${e}"
 
             // throw the error
             throw e;
