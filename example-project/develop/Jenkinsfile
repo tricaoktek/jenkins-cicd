@@ -71,8 +71,10 @@ pipeline {
       steps {
         script {
           try {
-            sh 'git commit -am "Commit merge ${ref} branch to ${base_ref}"'
-            sh "git push origin ${base_ref}"
+            withCredentials([sshUserPrivateKey(credentialsId: 'tricao', keyFileVariable: 'SSH_KEY')]) {
+              sh 'git commit -am "Commit merge ${ref} branch to ${base_ref}"'
+              sh "git push origin ${base_ref}"
+            }
             telegramSend "👍 Push Commit Success ${repo_name} - ${base_ref}: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'\n${env.BUILD_URL}"
           } catch (e) {
             // mark build as failed
