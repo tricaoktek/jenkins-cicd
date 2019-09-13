@@ -1,11 +1,11 @@
 pipeline {
   agent any
 
+  // no base_ref on merge button
   triggers {
     GenericTrigger(
      genericVariables: [
       [key: 'ref', value: '$.ref'],
-      [key: 'base_ref', value: '$.base_ref'],
       [key: 'main_repo', value: '$.repository.ssh_url', expressionType: 'JSONPath'],
       [key: 'repo_name', value: '$.repository.name', expressionType: 'JSONPath']
      ],
@@ -22,9 +22,9 @@ pipeline {
   stages {
     stage('Preparing source...') {
       steps {
-            git branch: 'develop',
-            credentialsId: 'tricao',
-            url: '$main_repo'
+        git branch: 'develop',
+        credentialsId: 'tricao',
+        url: '$main_repo'
       }
     }
 
@@ -32,14 +32,14 @@ pipeline {
       steps {
         script {
           try {
-            telegramSend "😂 Building ${repo_name} - ${base_ref}..."
-            telegramSend "👍 Build Success ${repo_name} - ${base_ref}: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'\n${env.BUILD_URL}"
+            telegramSend "😂 Building ${repo_name} - develop..."
+            telegramSend "👍 Build Success ${repo_name} - develop: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'\n${env.BUILD_URL}"
           } catch(e) {
             // mark build as failed
             currentBuild.result = "FAILURE";
 
             // send slack notification
-            telegramSend "💩 Build Failed ${repo_name} - ${base_ref}: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'\n${env.BUILD_URL}\nError: ${e}"
+            telegramSend "💩 Build Failed ${repo_name} - develop: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'\n${env.BUILD_URL}\nError: ${e}"
 
             // throw the error
             throw e;
@@ -52,20 +52,20 @@ pipeline {
       steps {
         script {
           try {
-            telegramSend "😂 ${repo_name} - Merging ${base_ref} to staging..."
+            telegramSend "😂 ${repo_name} - Merging develop to staging..."
             sshagent(['tricao']) {
               sh 'git checkout staging'
               sh 'git pull'
               sh 'git merge develop'
               sh "git push origin staging"
             }
-            telegramSend "👍 Merge Success ${repo_name} - Merge ${base_ref} to staging: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'\n${env.BUILD_URL}"
+            telegramSend "👍 Merge Success ${repo_name} - Merge develop to staging: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'\n${env.BUILD_URL}"
           } catch (e) {
             // mark build as failed
             currentBuild.result = "FAILURE";
 
             // send slack notification
-            telegramSend "💩 ${repo_name} - Merge ${base_ref} to staging Failed ${repo_name} - ${base_ref}: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'\n${env.BUILD_URL}\nError: ${e}"
+            telegramSend "💩 ${repo_name} - Merge develop to staging Failed ${repo_name} - develop: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'\n${env.BUILD_URL}\nError: ${e}"
 
             // throw the error
             throw e;
