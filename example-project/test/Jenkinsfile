@@ -13,7 +13,7 @@ pipeline {
                 credentialsId: 'tricao',
                 url: 'git@github.com:tricaoktek/docker-demo.git'
 
-            sh 'git merge $ghprbSourceBranch'
+            sh 'git merge origin/$ghprbSourceBranch'
           } catch (e) {
             // mark build as failed
             currentBuild.result = "FAILURE";
