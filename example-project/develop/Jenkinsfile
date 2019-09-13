@@ -10,7 +10,7 @@ pipeline {
       [key: 'repo_name', value: '$.pull_request.head.repo.name', expressionType: 'JSONPath']
      ],
      causeString: 'Triggered on $ref',
-     token: 'project-name',
+     token: 'project-name-develop',
      printContributedVariables: true,
      printPostContent: true,
      silentResponse: false,
