@@ -22,7 +22,7 @@ pipeline {
   stages {
     stage('Preparing source...') {
       steps {
-            git branch: '$ref',
+            git branch: 'staging',
             credentialsId: 'tricao',
             url: '$main_repo'
       }
