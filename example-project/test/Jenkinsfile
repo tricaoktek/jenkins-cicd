@@ -9,11 +9,11 @@ pipeline {
 
         script {
           try {
-            git branch: '$ghprbSourceBranch',
+            git branch: '$ghprbTargetBranch',
                 credentialsId: 'tricao',
                 url: 'git@github.com:tricaoktek/docker-demo.git'
 
-            sh 'git merge $ghprbTargetBranch'
+            sh 'git merge $ghprbSourceBranch'
           } catch (e) {
             // mark build as failed
             currentBuild.result = "FAILURE";
