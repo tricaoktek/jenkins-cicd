@@ -4,18 +4,18 @@ pipeline {
   triggers {
     GenericTrigger(
      genericVariables: [
-      [key: 'ref', value: '$.pull_request.head.ref'],
-      [key: 'base_ref', value: '$.pull_request.base.ref'],
-      [key: 'main_repo', value: '$.pull_request.head.repo.ssh_url', expressionType: 'JSONPath'],
-      [key: 'repo_name', value: '$.pull_request.head.repo.name', expressionType: 'JSONPath']
+      [key: 'ref', value: '$.ref'],
+      [key: 'base_ref', value: '$.base.ref'],
+      [key: 'main_repo', value: '$.repository.ssh_url', expressionType: 'JSONPath'],
+      [key: 'repo_name', value: '$.repository.name', expressionType: 'JSONPath']
      ],
-     causeString: 'Triggered on $ref',
+     causeString: 'Triggered on $base_ref',
      token: 'project-name-staging',
      printContributedVariables: true,
      printPostContent: true,
      silentResponse: false,
      regexpFilterText: '$base_ref',
-     regexpFilterExpression: 'staging'
+     regexpFilterExpression: 'refs/heads/staging'
     )
   }
 
