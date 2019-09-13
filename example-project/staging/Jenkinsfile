@@ -14,7 +14,7 @@ pipeline {
      printContributedVariables: true,
      printPostContent: true,
      silentResponse: false,
-     regexpFilterText: '$base_ref',
+     regexpFilterText: '$ref',
      regexpFilterExpression: 'refs/heads/staging'
     )
   }
@@ -22,7 +22,7 @@ pipeline {
   stages {
     stage('Preparing source...') {
       steps {
-            git branch: '$base_ref',
+            git branch: '$ref',
             credentialsId: 'tricao',
             url: '$main_repo'
       }
