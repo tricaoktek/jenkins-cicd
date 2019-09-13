@@ -10,7 +10,7 @@ pipeline {
       [key: 'repo_name', value: '$.repository.name', expressionType: 'JSONPath']
      ],
      causeString: 'Triggered on $ref',
-     token: 'project-name-staging',
+     token: 'project-name',
      printContributedVariables: true,
      printPostContent: true,
      silentResponse: false,
