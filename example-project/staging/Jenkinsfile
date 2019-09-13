@@ -5,11 +5,11 @@ pipeline {
     GenericTrigger(
      genericVariables: [
       [key: 'ref', value: '$.ref'],
-      [key: 'base_ref', value: '$.base.ref'],
+      [key: 'base_ref', value: '$.base_ref'],
       [key: 'main_repo', value: '$.repository.ssh_url', expressionType: 'JSONPath'],
       [key: 'repo_name', value: '$.repository.name', expressionType: 'JSONPath']
      ],
-     causeString: 'Triggered on $base_ref',
+     causeString: 'Triggered on $ref',
      token: 'project-name-staging',
      printContributedVariables: true,
      printPostContent: true,
