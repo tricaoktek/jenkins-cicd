@@ -4,90 +4,27 @@ pipeline {
   triggers {
     GenericTrigger(
      genericVariables: [
-      [key: 'action', value: '$.action'],
-      [key: 'ref', value: '$.pull_request.head.ref'],
-      [key: 'base_ref', value: '$.pull_request.base.ref'],
-      [key: 'main_repo', value: '$.pull_request.head.repo.ssh_url', expressionType: 'JSONPath'],
-      [key: 'repo_name', value: '$.pull_request.head.repo.name', expressionType: 'JSONPath']
+      [key: 'ref', value: '$.ref'],
+      [key: 'base_ref', value: '$.base_ref'],
+      [key: 'main_repo', value: '$.repository.ssh_url', expressionType: 'JSONPath'],
+      [key: 'repo_name', value: '$.repository.name', expressionType: 'JSONPath']
      ],
      causeString: 'Triggered on $ref',
      token: 'project-name-develop',
      printContributedVariables: true,
      printPostContent: true,
      silentResponse: false,
-     regexpFilterText: '$action',
-     regexpFilterExpression: 'opened'
+     regexpFilterText: '$ref',
+     regexpFilterExpression: 'refs/heads/develop'
     )
   }
 
   stages {
     stage('Preparing source...') {
       steps {
-        script {
-          try {
-            git branch: '$base_ref',
-                credentialsId: 'tricao',
-                url: '$main_repo'
-
-            sh 'git merge origin/$ref'
-          } catch (e) {
-            // mark build as failed
-            currentBuild.result = "FAILURE";
-
-            // send slack notification
-            telegramSend "💩 ${repo_name} - ${base_ref} => Merge ${ref} to ${base_ref} failed: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'\n${env.BUILD_URL}\nError: ${e}"
-
-            // throw the error
-            throw e;
-          }
-        }
-      }
-    }
-
-    stage('Testing') {
-      steps {
-        script {
-          try {
-            telegramSend "😂 Testing ${repo_name} - ${base_ref}..."
-            nodejs(nodeJSInstallationName: 'nodejs') {
-              sh 'npm install --only=dev'
-              sh 'npm test'
-            }
-            telegramSend "👍 Test Success ${repo_name} - ${base_ref}: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'\n${env.BUILD_URL}"
-          } catch(e) {
-            // mark build as failed
-            currentBuild.result = "FAILURE";
-
-            // send slack notification
-            telegramSend "💩 Test Failed ${repo_name} - ${base_ref}: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'\n${env.BUILD_URL}\nError: ${e}"
-
-            // throw the error
-            throw e;
-          }
-        }
-      }
-    }
-
-    stage('Pushing to origin...') {
-      steps {
-        script {
-          try {
-            sshagent(['tricao']) {
-              sh 'git diff-index --quiet HEAD || git commit -am "Merge ${ref} to ${base_ref}"'
-              sh "git push origin ${base_ref}"
-            }
-            telegramSend "👍 Push Commit Success ${repo_name} - ${base_ref}: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'\n${env.BUILD_URL}"
-          } catch (e) {
-            // mark build as failed
-            currentBuild.result = "FAILURE";
-
-            // send slack notification
-            telegramSend "💩 Push Commit Failed ${repo_name} - ${base_ref}: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'\n${env.BUILD_URL}\nError: ${e}"
-
-            // throw the error
-            throw e;
-          }
-        }
+            git branch: 'develop',
+            credentialsId: 'tricao',
+            url: '$main_repo'
       }
     }
 
@@ -97,7 +34,7 @@ pipeline {
           try {
             telegramSend "😂 Building ${repo_name} - ${base_ref}..."
             telegramSend "👍 Build Success ${repo_name} - ${base_ref}: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'\n${env.BUILD_URL}"
-          } catch (e) {
+          } catch(e) {
             // mark build as failed
             currentBuild.result = "FAILURE";
 
