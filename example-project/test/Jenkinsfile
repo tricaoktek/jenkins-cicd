@@ -7,24 +7,40 @@ pipeline {
         sh "echo ${ghprbTargetBranch}"
         sh "echo ${ghprbSourceBranch}"
 
-        // script {
-        //   try {
-        //     git branch: '$base_ref',
-        //         credentialsId: 'tricao',
-        //         url: '$main_repo'
+        script {
+          try {
+            git branch: '$ghprbSourceBranch',
+                credentialsId: 'tricao',
+                url: 'git@github.com:tricaoktek/docker-demo.git'
 
-        //     sh 'git merge origin/$ref'
-        //   } catch (e) {
-        //     // mark build as failed
-        //     currentBuild.result = "FAILURE";
+            sh 'git merge $ghprbTargetBranch'
+          } catch (e) {
+            // mark build as failed
+            currentBuild.result = "FAILURE";
 
-        //     // send slack notification
-        //     telegramSend "💩 ${repo_name} - ${base_ref} => Merge ${ref} to ${base_ref} failed: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'\n${env.BUILD_URL}\nError: ${e}"
+            // throw the error
+            throw e;
+          }
+        }
+      }
+    }
 
-        //     // throw the error
-        //     throw e;
-        //   }
-        // }
+    stage('Testing') {
+      steps {
+        script {
+          try {
+            nodejs(nodeJSInstallationName: 'nodejs') {
+              sh 'npm install --only=dev'
+              sh 'npm test'
+            }
+          } catch(e) {
+            // mark build as failed
+            currentBuild.result = "FAILURE";
+
+            // throw the error
+            throw e;
+          }
+        }
       }
     }
   }
