@@ -72,8 +72,8 @@ pipeline {
         script {
           try {
             sshagent(['tricao']) {
-              sh 'git commit -am "Merge ${ref} branch to ${base_ref}"'
-              sh "git diff-index --quiet HEAD || git push origin ${base_ref}"
+              sh 'git diff-index --quiet HEAD || git commit -am "Merge ${ref} to ${base_ref}"'
+              sh "git push origin ${base_ref}"
             }
             telegramSend "👍 Push Commit Success ${repo_name} - ${base_ref}: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'\n${env.BUILD_URL}"
           } catch (e) {
