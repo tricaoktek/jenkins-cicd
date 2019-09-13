@@ -1,7 +1,31 @@
 pipeline {
+  agent any
+
   stages {
-    steps {
-      sh "echo hello"
+    stage('Preparing source...') {
+      steps {
+        sh "echo ${ghprbTargetBranch}"
+        sh "echo ${ghprbSourceBranch}"
+
+        // script {
+        //   try {
+        //     git branch: '$base_ref',
+        //         credentialsId: 'tricao',
+        //         url: '$main_repo'
+
+        //     sh 'git merge origin/$ref'
+        //   } catch (e) {
+        //     // mark build as failed
+        //     currentBuild.result = "FAILURE";
+
+        //     // send slack notification
+        //     telegramSend "💩 ${repo_name} - ${base_ref} => Merge ${ref} to ${base_ref} failed: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'\n${env.BUILD_URL}\nError: ${e}"
+
+        //     // throw the error
+        //     throw e;
+        //   }
+        // }
+      }
     }
   }
 }
