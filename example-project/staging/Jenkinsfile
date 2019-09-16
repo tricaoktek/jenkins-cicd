@@ -47,5 +47,25 @@ pipeline {
         }
       }
     }
+
+    stage('Deploy') {
+      steps {
+        script {
+          try {
+            telegramSend "😂 Deploying ${repo_name} - develop..."
+            telegramSend "👍 Deploy Success ${repo_name} - develop: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'\n${env.BUILD_URL}"
+          } catch(e) {
+            // mark build as failed
+            currentBuild.result = "FAILURE";
+
+            // send slack notification
+            telegramSend "💩 Build Failed ${repo_name} - develop: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'\n${env.BUILD_URL}\nError: ${e}"
+
+            // throw the error
+            throw e;
+          }
+        }
+      }
+    }
   }
 }

@@ -48,24 +48,18 @@ pipeline {
       }
     }
 
-    stage('Merge staging...') {
+    stage('Deploy') {
       steps {
         script {
           try {
-            telegramSend "😂 ${repo_name} - Merging develop to staging..."
-            sshagent(['tricao']) {
-              sh 'git checkout staging'
-              sh 'git pull'
-              sh 'git merge develop'
-              sh "git push origin staging"
-            }
-            telegramSend "👍 Merge Success ${repo_name} - Merge develop to staging: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'\n${env.BUILD_URL}"
-          } catch (e) {
+            telegramSend "😂 Deploying ${repo_name} - develop..."
+            telegramSend "👍 Deploy Success ${repo_name} - develop: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'\n${env.BUILD_URL}"
+          } catch(e) {
             // mark build as failed
             currentBuild.result = "FAILURE";
 
             // send slack notification
-            telegramSend "💩 ${repo_name} - Merge develop to staging Failed ${repo_name} - develop: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'\n${env.BUILD_URL}\nError: ${e}"
+            telegramSend "💩 Build Failed ${repo_name} - develop: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'\n${env.BUILD_URL}\nError: ${e}"
 
             // throw the error
             throw e;
@@ -73,5 +67,31 @@ pipeline {
         }
       }
     }
+
+  // stage('Merge staging...') {
+  //   steps {
+  //     script {
+  //       try {
+  //         telegramSend "😂 ${repo_name} - Merging develop to staging..."
+  //         sshagent(['tricao']) {
+  //           sh 'git checkout staging'
+  //           sh 'git pull'
+  //           sh 'git merge develop'
+  //           sh "git push origin staging"
+  //         }
+  //         telegramSend "👍 Merge Success ${repo_name} - Merge develop to staging: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'\n${env.BUILD_URL}"
+  //       } catch (e) {
+  //         // mark build as failed
+  //         currentBuild.result = "FAILURE";
+
+  //         // send slack notification
+  //         telegramSend "💩 ${repo_name} - Merge develop to staging Failed ${repo_name} - develop: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'\n${env.BUILD_URL}\nError: ${e}"
+
+  //         // throw the error
+  //         throw e;
+  //       }
+  //     }
+  //   }
+  // }
   }
 }
