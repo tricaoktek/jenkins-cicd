@@ -54,11 +54,11 @@ pipeline {
           try {
             telegramSend "😂 Deploying ${repo_name} - develop..."
 
-            sshagent(credentials : ['tricao']) {
-                sh 'ssh -o StrictHostKeyChecking=no tri.cao@ktek.io uptime'
-                sh 'ssh -v tri.cao@ktek.io'
-                sh 'scp ./source/filename tri.cao@ip.com:/remotehost/target'
-            }
+            // sshagent(credentials : ['tricao']) {
+            //     sh 'ssh -o StrictHostKeyChecking=no tri.cao@ktek.io uptime'
+            //     sh 'ssh -v tri.cao@ktek.io'
+            //     sh 'scp ./source/filename tri.cao@ip.com:/remotehost/target'
+            // }
 
             telegramSend "👍 Deploy Success ${repo_name} - develop: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'\n${env.BUILD_URL}"
           } catch(e) {
